@@ -1,24 +1,34 @@
 name: Weekly Newsletter
+
 on:
  schedule:
  - cron: '0 9 * * 1'
  workflow_dispatch:
+
 jobs:
  generate:
  runs-on: ubuntu-latest
  steps:
  - uses: actions/checkout@v3
- - uses: actions/setup-python@v4
+
+ - name: Set up Python
+ uses: actions/setup-python@v4
  with:
  python-version: '3.11'
- - run: pip install requests openai
- - run: python generate_newsletter.py
+
+ - name: Install dependencies
+ run: pip install requests openai
+
+ - name: Generate newsletter
  env:
  NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
- - run: |
- git config --global user.name "bot"
- git config --global user.email "bot@bot.com"
+ run: python generate_newsletter.py
+
+ - name: Commit and push
+ run: |
+ git config --global user.name "Newsletter Bot"
+ git config --global user.email "bot@newsletter.com"
  git add .
- git commit -m "newsletter" || echo "no changes"
+ git commit -m "Weekly newsletter $(date +'%Y-%m-%d')" || echo "No changes"
  git push
